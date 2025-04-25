@@ -1,66 +1,68 @@
-import { useState, useEffect } from 'react';
+// src/pages/Home.jsx
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Experience from '../components/3d/Experience';
-import { motion } from 'framer-motion';
+import Overlay from '../components/ui/Overlay';
+import Instructions from '../components/ui/Instructions';
 
 const HomeContainer = styled.div`
   width: 100%;
   height: 100vh;
   position: relative;
+  overflow: hidden; /* Prevent scrolling */
+  display: flex;
+  flex-direction: column;
 `;
 
-const Overlay = styled(motion.div)`
+const ExperienceContainer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 0 10%;
-  pointer-events: none;
+  z-index: 1;
 `;
 
-const Title = styled(motion.h1)`
-  font-size: 5rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-`;
-
-const Subtitle = styled(motion.h2)`
-  font-size: 2rem;
-  font-weight: 400;
-  color: white;
-  margin: 1rem 0;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+const ContentOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  pointer-events: none; /* Allow clicks to pass through to the 3D scene except where explicitly enabled */
 `;
 
 const Home = () => {
+  const [experienceReady, setExperienceReady] = useState(false);
+
+  // Handle when Experience signals it's fully loaded
+  const handleExperienceLoaded = () => {
+    console.log('[Home] Experience has finished loading');
+    setExperienceReady(true);
+  };
+
   return (
     <HomeContainer>
-      <Experience />
-      <Overlay>
-        <Title
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-        >
-          Harshal Kataria
-        </Title>
-        <Subtitle
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4 }}
-        >
-          Software Engineer | Robotics Enthusiast | Cricketer
-        </Subtitle>
-      </Overlay>
+      {/* Experience container always renders Experience - it has its own LoadingScreen */}
+      <ExperienceContainer>
+        <Experience onLoaded={handleExperienceLoaded} />
+      </ExperienceContainer>
+      
+      {/* Content overlay only shows when experience is ready */}
+      <ContentOverlay>
+        {experienceReady && (
+          <>
+            <Overlay />
+            <Instructions>
+              Press SPACE to toggle the engine sound on/off<br />
+              Use mouse to rotate the camera view
+            </Instructions>
+          </>
+        )}
+      </ContentOverlay>
     </HomeContainer>
   );
 };
 
-export default Home; 
+export default Home;
