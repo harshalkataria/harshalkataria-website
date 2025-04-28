@@ -21,7 +21,7 @@ const Vehicle = () => {
     position,
     args: [2, 0.5, 4], // width, height, length
     allowSleep: false,
-    type: 'Dynamic', // Change to Dynamic to allow movement
+    type: 'Static', // Change back to Static to prevent unwanted movement
     userData: { id: 'vehicle' },
   }));
 
@@ -66,33 +66,39 @@ const Vehicle = () => {
     let hasGeometry = false;
     if (!model) return false;
     
-    // Log the model structure to help debug
-    console.log('[Vehicle] Checking model structure:', model);
-    
     // Check if model has meshes with geometry
     model.traverse((child) => {
       if (child.isMesh && child.geometry) {
         hasGeometry = true;
-        console.log('[Vehicle] Found geometry in child:', child.name || 'unnamed mesh');
       }
     });
     
     return hasGeometry;
   };
 
-  // Basic rendering without movement - only run if model is ready
+  // Make the physics body invisible and non-shadow-casting
+  useEffect(() => {
+    if (chassisBody.current) {
+      // Make the physics body not cast shadows
+      chassisBody.current.castShadow = false;
+      chassisBody.current.visible = false;
+    }
+  }, [chassisBody.current]);
+
+  // Sync model with physics body
   useFrame(() => {
     if (!isReady || !chassisRef.current || !carModel.current) return;
     
-    // Sync the model position with the physics body
-    carModel.current.position.copy(chassisRef.current.position);
-    carModel.current.quaternion.copy(chassisRef.current.quaternion);
+    // Instead of copying position from physics to model,
+    // copy from model to physics to maintain alignment
+    chassisRef.current.position.copy(carModel.current.position);
+    chassisRef.current.quaternion.copy(carModel.current.quaternion);
   });
   
   return (
     <group>
       {/* Physics body - invisible box */}
-      <mesh ref={chassisBody} castShadow>
+      <mesh ref={chassisBody}>
         <boxGeometry args={[2, 0.5, 4]} />
         <meshBasicMaterial transparent opacity={0.0} />
       </mesh>

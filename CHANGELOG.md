@@ -5,6 +5,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [2.0.1] - 2025-04-28
+
+### 🐞 Fixed
+
+- Fixed the rotating box shadow under the vehicle
+
+---
+
 ## [2.0.0] - 2025-04-25
 
 ### ✨ Added
